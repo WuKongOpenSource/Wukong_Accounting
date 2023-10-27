@@ -18,7 +18,7 @@
 
 扫码加入微信群，在线客服解答疑问
 
-<img src="https://raw.githubusercontent.com/WuKongOpenSource/WukongHRM/main/img/cc1.png" width="120">
+<img src="https://github.com/WuKongOpenSource/Wukong_Accounting/blob/main/img/b1.png" width="120">
 
 :boom:  :boom:  :boom: 注：悟空财务系统采用全新的前后端分离模式，本仓库代码中已集成前端vue打包后文件，  **可免去打包操作，无需运行前端**
 
