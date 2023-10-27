@@ -205,15 +205,15 @@ source XXX/wk_open_finance.sql（XXX为项目路径）
 
 ###### 注册之后点击默认企业,应用列表中选择财务管理
 
-![默认企业](img/007.png "img1.png")
+![默认企业](img/001.png "img1.png")
 
 ###### 点击财务管理
 
-![人力资源管理](img/008.png "img2.png")
+![人力资源管理](img/002.png "img2.png")
 
 ##### 将App ID，accessKey，secretKey复制到 finance-web\src\main\resources\application.yml，分别对应appId，clientId，clientSecret 如下图所示
 
-![代码配置](img/009.png "img4.png")
+![代码配置](img/003.png "img4.png")
 将appId复制到finance-web\src\main\resources\static\APPLICATION_ID.txt内，替换里面内容
 
 ###### 5. 项目打包部署
@@ -261,10 +261,10 @@ sh 72crm.sh start
 
 ### 四、悟空财务管理功能模块预览
 
-![输入图片说明](img/001.png)
-![输入图片说明](img/002.png)
-![输入图片说明](img/003.png)
-![输入图片说明](img/004.png)
-![输入图片说明](img/005.png)
-![输入图片说明](img/006.png)
+![输入图片说明](img/01.png)
+![输入图片说明](img/02.png)
+![输入图片说明](img/03.png)
+![输入图片说明](img/04.png)
+![输入图片说明](img/05.png)
+![输入图片说明](img/06.png)
 
