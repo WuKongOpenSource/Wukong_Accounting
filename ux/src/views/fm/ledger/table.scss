@@ -1,0 +1,42 @@
+.app-container {
+  padding: 15px 40px 0;
+
+  .main {
+    position: relative;
+
+    &-header {
+      height: 32px;
+    }
+
+    &-title {
+      height: 100%;
+      font-size: $--font-size-xxlarge;
+      color: $--color-black;
+    }
+
+    .content-flex {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 24px 0;
+
+      .buttons {
+        float: right;
+        width: auto;
+
+        .el-button {
+          margin: 0 8px;
+        }
+      }
+    }
+
+    ::v-deep .el-table {
+      &.el-table--border::after {
+        display: none;
+      }
+
+      tbody > .td {
+        overflow: hidden;
+      }
+    }
+  }
+}
