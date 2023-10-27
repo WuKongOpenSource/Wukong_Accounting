@@ -1,0 +1,368 @@
+[
+  {
+    "digestContent": "报销差旅费",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "560107",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1001",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "报销电话费",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "560101",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1001",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "支付银行手续费",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "560303",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1002",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "支付工资",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "2211",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1001",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "支付房租水电费",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "560102",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1001",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "缴纳地税款",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "222117",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1002",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "缴纳所得税",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "222111",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1002",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "缴纳增值税",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "222102",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1002",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "利息收入",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "1002",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "560302",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "提现金",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "1002",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "560302",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "报销业务招待费用",
+    "templateType": 1,
+    "templateSubjects": [
+      {
+        "number": "1001",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1002",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "采购商品（银行付款）",
+    "templateType": 2,
+    "templateSubjects": [
+      {
+        "number": "1405",
+        "isLend": 1,
+        "moneyRatio": 86
+      },
+      {
+        "number": "22210101",
+        "isLend": 1,
+        "moneyRatio": 14
+      },
+      {
+        "number": "1002",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "采购商品（应付款）",
+    "templateType": 2,
+    "templateSubjects": [
+      {
+        "number": "1405",
+        "isLend": 1,
+        "moneyRatio": 86
+      },
+      {
+        "number": "22210101",
+        "isLend": 1,
+        "moneyRatio": 14
+      },
+      {
+        "number": "2202",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "销售商品（银行收款）",
+    "templateType": 2,
+    "templateSubjects": [
+      {
+        "number": "1002",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "5001",
+        "isLend": 2,
+        "moneyRatio": 86
+      },
+      {
+        "number": "22210107",
+        "isLend": 2,
+        "moneyRatio": 14
+      }
+    ]
+  },
+  {
+    "digestContent": "销售商品（现金收款）",
+    "templateType": 2,
+    "templateSubjects": [
+      {
+        "number": "1001",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "5001",
+        "isLend": 2,
+        "moneyRatio": 86
+      },
+      {
+        "number": "22210107",
+        "isLend": 2,
+        "moneyRatio": 14
+      }
+    ]
+  },
+  {
+    "digestContent": "销售商品（应收）",
+    "templateType": 2,
+    "templateSubjects": [
+      {
+        "number": "1122",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "5001",
+        "isLend": 2,
+        "moneyRatio": 86
+      },
+      {
+        "number": "22210107",
+        "isLend": 2,
+        "moneyRatio": 14
+      }
+    ]
+  },
+  {
+    "digestContent": "个人借款",
+    "templateType": 3,
+    "templateSubjects": [
+      {
+        "number": "1221",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1001",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "个人还款",
+    "templateType": 3,
+    "templateSubjects": [
+      {
+        "number": "1001",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1221",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "收货款",
+    "templateType": 3,
+    "templateSubjects": [
+      {
+        "number": "1002",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1122",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "支付货款",
+    "templateType": 3,
+    "templateSubjects": [
+      {
+        "number": "2202",
+        "isLend": 1,
+        "moneyRatio": 100
+      },
+      {
+        "number": "1002",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  },
+  {
+    "digestContent": "计提工资",
+    "templateType": 4,
+    "templateSubjects": [
+      {
+        "number": "560110",
+        "isLend": 1,
+        "moneyRatio": 15
+      },
+      {
+        "number": "560209",
+        "isLend": 1,
+        "moneyRatio": 85
+      },
+      {
+        "number": "2211",
+        "isLend": 2,
+        "moneyRatio": 100
+      }
+    ]
+  }
+]

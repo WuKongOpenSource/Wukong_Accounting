@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kakarote.finance.mapper.FinanceAdjuvantCarteMapper">
+    <select id="queryByAdjuvantId" resultType="com.kakarote.finance.entity.PO.FinanceAdjuvantCarte">
+        select *
+        from wk_finance_adjuvant_carte
+        where 1=1
+        and adjuvant_id = #{data.adjuvantId}
+        <choose>
+            <when test="data.status != null and data.status != ''">
+                and status = #{data.status}
+            </when>
+            <otherwise>
+                and status != 3
+            </otherwise>
+        </choose>
+        <if test="data.search != null and data.search != ''">
+            and
+            (
+            carte_number like CONCAT('%',#{data.search},'%')
+            or carte_name like CONCAT('%',#{data.search},'%')
+            )
+        </if>
+        order by -carte_number,carte_id desc
+    </select>
+    <select id="getAdjuvantData" resultType="java.util.LinkedHashMap">
+        select
+        carte_number AS '编码',
+        carte_name AS '名称'
+        <if test="data.label == 1 or data.label == 2">
+            , remark AS '备注'
+        </if>
+        <if test="data.label == 6">
+            , specification AS '规格',
+            unit AS '单位'
+        </if>
+
+        from wk_finance_adjuvant_carte
+        where status != 3
+        and adjuvant_id = #{data.adjuvantId}
+        <if test="data.search != null and data.search != ''">
+            and
+            (
+            carte_number like CONCAT('%',#{data.search},'%')
+            or carte_name like CONCAT('%',#{data.search},'%')
+            )
+        </if>
+        order by -carte_number,carte_id desc
+    </select>
+    <select id="querySubjectAdjuvantByAccountId" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        a.subject_id,
+        c.adjuvant_id,
+        d.label,
+        d.adjuvant_name AS label_name,
+        c.carte_id,
+        c.carte_number,
+        c.carte_name
+        FROM
+        wk_finance_certificate_detail AS a
+        LEFT JOIN wk_finance_assist_adjuvant AS b ON a.assist_id = b.assist_id
+        left join wk_finance_adjuvant_carte as c on b.relation_id = c.carte_id
+        JOIN wk_finance_adjuvant AS d ON c.adjuvant_id = d.adjuvant_id
+        WHERE
+        a.account_id = #{accountId}
+    </select>
+</mapper>

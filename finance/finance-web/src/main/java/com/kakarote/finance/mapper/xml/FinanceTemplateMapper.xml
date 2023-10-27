@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kakarote.finance.mapper.FinanceTemplateMapper">
+    <select id="queryList" resultType="com.alibaba.fastjson.JSONObject">
+        select a.*,b.type_name
+        from wk_finance_template as a
+        left join wk_finance_template_type as b on a.type_id = b.type_id
+        where a.account_id = #{accountId}
+    </select>
+</mapper>

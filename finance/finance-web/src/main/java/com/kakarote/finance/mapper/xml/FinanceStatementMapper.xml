@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kakarote.finance.mapper.FinanceStatementMapper">
+    <select id="queryList" resultType="com.alibaba.fastjson.JSONObject">
+        select a.*
+        from wk_finance_statement as a
+        where a.account_id = #{accountId}
+        and (a.statement_type != 1 or a.is_end_over = 1)
+    </select>
+    <select id="appreciationJudgeStatement" resultType="com.alibaba.fastjson.JSONObject">
+        select ifnull(sum(a.debtor_balance),0) as debtor_balance, ifnull(sum(a.credit_balance),0) as credit_balance
+        from wk_finance_certificate_detail as a
+        left join wk_finance_certificate as b on a.certificate_id = b.certificate_id
+        where DATE_FORMAT(b.certificate_time,'%Y%m') = DATE_FORMAT(#{settleTime},'%Y%m')
+        and a.subject_id in
+        <foreach collection="subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+    </select>
+    <select id="queryDetailBalanceAccount" resultType="com.alibaba.fastjson.JSONObject">
+        select f.*,(f.credit_initial_balance + f.credit_current_balance - f.debtor_current_balance ) as
+        credit_end_balance,
+        (f.debtor_initial_balance + f.debtor_current_balance - f.credit_current_balance ) as debtor_end_balance
+        from (
+        select distinct
+        (select ifnull(sum(e.credit_balance),0) - ifnull(sum(e.debtor_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') &lt; DATE_FORMAT(#{data.startTime},'%Y%m')
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and e.account_id = #{data.accountId}
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId} and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        )+ if((select DATE_FORMAT(start_time,'%Y%m') from wk_finance_parameter
+        where account_id = #{data.accountId}) = DATE_FORMAT(#{data.startTime},'%Y%m'),
+        ifnull((select if(w.balance_direction = 2,ifnull(sum(initial_balance),0),0) - if(w.balance_direction =
+        1,ifnull(sum(initial_balance),0),0)
+        from wk_finance_initial as z
+        left join wk_finance_subject as w on z.subject_id = w.subject_id
+        where z.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and z.account_id = #{data.accountId}
+        and z.initial_id not in (select initial_id from wk_finance_initial_assist where account_id = #{data.accountId})
+        ),0),0) as credit_initial_balance ,
+        (select ifnull(sum(e.debtor_balance),0) - ifnull(sum(e.credit_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') &lt; DATE_FORMAT(#{data.startTime},'%Y%m')
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and e.account_id = #{data.accountId}
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId} and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        )+ if((select DATE_FORMAT(start_time,'%Y%m') from wk_finance_parameter
+        where account_id = #{data.accountId}) = DATE_FORMAT(#{data.startTime},'%Y%m'),
+        ifnull((select if(w.balance_direction = 2,ifnull(sum(initial_balance),0),0) - if(w.balance_direction =
+        1,ifnull(sum(initial_balance),0),0)
+        from wk_finance_initial as z
+        left join wk_finance_subject as w on z.subject_id = w.subject_id
+        where z.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and z.account_id = #{data.accountId}
+        and z.initial_id not in (select initial_id from wk_finance_initial_assist where account_id = #{data.accountId})
+        ),0),0) as debtor_initial_balance ,
+        (select ifnull(sum(e.credit_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') &lt;= DATE_FORMAT(#{data.endTime},'%Y%m')
+        and DATE_FORMAT(c.certificate_time,'%Y%m') >= DATE_FORMAT(#{data.startTime},'%Y%m')
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and e.account_id = #{data.accountId}
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as credit_current_balance,
+        (select ifnull(sum(e.debtor_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') &lt;= DATE_FORMAT(#{data.endTime},'%Y%m')
+        and DATE_FORMAT(c.certificate_time,'%Y%m') >= DATE_FORMAT(#{data.startTime},'%Y%m')
+        and e.account_id = #{data.accountId}
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId} and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as debtor_current_balance,
+
+        (select ifnull(sum(e.credit_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') &lt;= DATE_FORMAT(#{data.endTime},'%Y%m')
+        and DATE_FORMAT(c.certificate_time,'%Y') = DATE_FORMAT(#{data.endTime},'%Y')
+        and e.account_id = #{data.accountId}
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as credit_year_balance ,
+
+        (select ifnull(sum(e.debtor_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') &lt;= DATE_FORMAT(#{data.endTime},'%Y%m')
+        and DATE_FORMAT(c.certificate_time,'%Y') = DATE_FORMAT(#{data.endTime},'%Y')
+        and e.account_id = #{data.accountId}
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as debtor_year_balance ,
+
+        (select ifnull(sum(e.debtor_balance),0) - ifnull(sum(e.credit_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y') &lt;= DATE_FORMAT(#{data.endTime},'%Y')
+        and e.account_id = #{data.accountId}
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as debtor_year_initial_balance ,
+
+        (select ifnull(sum(e.credit_balance),0) - ifnull(sum(e.debtor_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y') &lt;= DATE_FORMAT(#{data.endTime},'%Y')
+        and e.account_id = #{data.accountId}
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as credit_year_initial_balance ,
+        (select ifnull(sum(e.credit_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') = DATE_FORMAT(DATE_SUB(#{data.endTime},interval 1 month),'%Y%m')
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and e.account_id = #{data.accountId}
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as credit_last_month_balance,
+        (select ifnull(sum(e.debtor_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') = DATE_FORMAT(DATE_SUB(#{data.endTime},interval 1 month),'%Y%m')
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and e.account_id = #{data.accountId}
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as debtor_last_month_balance,
+        (select ifnull(sum(e.credit_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') = DATE_FORMAT(DATE_SUB(#{data.endTime},interval 1 year),'%Y%m')
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and e.account_id = #{data.accountId}
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as credit_last_year_month_balance,
+        (select ifnull(sum(e.debtor_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y%m') = DATE_FORMAT(DATE_SUB(#{data.endTime},interval 1 year),'%Y%m')
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and e.account_id = #{data.accountId}
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as debtor_last_year_month_balance,
+        (select ifnull(sum(e.credit_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y') = DATE_FORMAT(DATE_SUB(#{data.endTime},interval 1 year),'%Y')
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and e.account_id = #{data.accountId}
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as credit_last_year_balance,
+        (select ifnull(sum(e.debtor_balance),0)
+        from wk_finance_certificate_detail as e
+        left join wk_finance_certificate as c on e.certificate_id = c.certificate_id
+        where DATE_FORMAT(c.certificate_time,'%Y') = DATE_FORMAT(DATE_SUB(#{data.endTime},interval 1 year),'%Y')
+        and e.subject_id in
+        <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+            #{subjectId}
+        </foreach>
+        and e.account_id = #{data.accountId}
+        and c.certificate_id not in (select certificate_id from wk_finance_statement_certificate where account_id =
+        #{data.accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.startTime},'%Y%m'))
+        ) as debtor_last_year_balance
+        ) as f
+    </select>
+    <select id="queryByTime" resultType="java.lang.Integer">
+        select count(1)
+        from wk_finance_certificate
+        where DATE_FORMAT(certificate_time,'%Y%m') = DATE_FORMAT(#{data.settleTime},'%Y%m')
+        and account_id = #{data.accountId}
+    </select>
+    <select id="querySubject" resultType="com.alibaba.fastjson.JSONObject">
+        select a.*,b.subject_name
+        from wk_finance_statement_subject as a
+        left join wk_finance_subject as b on a.subject_id = b.subject_id
+        where statement_id = #{statementId}
+        and a.account_id = #{accountId}
+    </select>
+    <select id="queryListByIds" resultType="com.alibaba.fastjson.JSONObject">
+        select a.*
+        from wk_finance_certificate_detail as a
+        left join wk_finance_subject as b on a.subject_id = b.subject_id and b.account_id = #{data.accountId}
+        left join wk_finance_certificate as c on a.certificate_id = c.certificate_id and c.account_id =
+        #{data.accountId}
+        where a.account_id = #{data.accountId}
+        and DATE_FORMAT(c.certificate_time,'%Y%m') = DATE_FORMAT(#{data.certificateTime},'%Y%m')
+        and b.type = 5
+    </select>
+    <select id="queryCertificate" resultType="com.alibaba.fastjson.JSONObject">
+        select CONCAT(c.voucher_name,'_',a.certificate_num) as certificate_num,a.certificate_num as num,a.voucher_id,
+        a.certificate_id,(
+        select ifnull(sum(debtor_balance),0) + ifnull(sum(credit_balance),0)
+        from wk_finance_certificate_detail
+        where certificate_id = a.certificate_id
+        ) as balance
+        from wk_finance_certificate as a
+        left join wk_finance_statement_certificate as b on a.certificate_id = b.certificate_id
+        left join wk_finance_voucher as c on c.voucher_id = a.voucher_id
+        where a.account_id = #{accountId}
+        and DATE_FORMAT(a.certificate_time,'%Y%m') =#{settleTime}
+        and b.statement_id = #{statementId}
+    </select>
+    <select id="queryBalance" resultType="com.alibaba.fastjson.JSONObject">
+        select ifnull(sum(a.debtor_balance),0) as balance
+        from wk_finance_certificate_detail as a
+        LEFT JOIN wk_finance_certificate as c on c.certificate_id = a.certificate_id
+        left join wk_finance_statement_certificate as b on c.certificate_id = b.certificate_id
+        where b.statement_id = #{statementId}
+        and DATE_FORMAT(b.certificate_time,'%Y%m') =#{settleTime}
+        and a.account_id = #{accountId}
+    </select>
+    <select id="queryBalanceBySubject" resultType="com.alibaba.fastjson.JSONObject">
+        select ifnull(sum(a.debtor_balance * c.money_ratio / 100),0) as balance
+        from wk_finance_certificate_detail as a
+        left join wk_finance_certificate as b on a.certificate_id = b.certificate_id
+        left join wk_finance_statement_subject as c on a.subject_id = c.subject_id
+        where c.statement_id = #{statementId}
+        and DATE_FORMAT(b.certificate_time,'%Y%m') =#{settleTime}
+        and a.account_id = #{accountId}
+    </select>
+    <select id="queryProfitBalance" resultType="com.alibaba.fastjson.JSONObject">
+        select if(d.balance_direction = 1,ifnull(sum(a.debtor_balance), 0 -
+        sum(a.credit_balance)),ifnull(sum(a.credit_balance), 0 - sum(a.debtor_balance)))
+        as balance
+        from wk_finance_certificate_detail as a
+        left join wk_finance_statement_certificate as b on a.certificate_id = b.certificate_id
+        left join wk_finance_statement as c on c.rest_subject_id = a.subject_id
+        left join wk_finance_subject as d on a.subject_id = d.subject_id
+        where c.statement_id = #{statementId}
+        and DATE_FORMAT(b.certificate_time,'%Y%m') =#{settleTime}
+        and a.account_id = #{accountId}
+    </select>
+    <select id="queryProfitSubjectCount" resultType="java.lang.Integer">
+        select count(1)
+        from wk_finance_statement_certificate as a
+        left join wk_finance_statement as b on a.statement_id = b.statement_id
+        where b.account_id = #{accountId}
+        and b.statement_type = 2
+        and DATE_FORMAT(a.certificate_time,'%Y%m') =DATE_FORMAT(#{settleTime},'%Y%m')
+    </select>
+    <select id="queryCertificateCheckStatusCount" resultType="java.lang.Integer">
+        select count(1)
+        from wk_finance_certificate as a
+        where a.account_id = #{accountId}
+        and a.check_status = 0
+        and DATE_FORMAT(a.certificate_time,'%Y%m') =DATE_FORMAT(#{settleTime},'%Y%m')
+    </select>
+    <select id="queryIsPayments" resultType="com.alibaba.fastjson.JSONObject">
+        select ifnull(sum(a.debtor_balance), 0) as debtor_balance,
+        ifnull(sum(a.credit_balance), 0) as credit_balance
+        from wk_finance_certificate_detail as a
+        left join wk_finance_statement_certificate as b on a.certificate_id = b.certificate_id
+        where b.account_id = #{accountId}
+        and DATE_FORMAT(b.certificate_time,'%Y%m') =DATE_FORMAT(#{settleTime},'%Y%m')
+    </select>
+    <select id="queryCertificateNumsByVoucherId" resultType="java.lang.Integer">
+        select certificate_num from wk_finance_certificate
+        where account_id = #{accountId}
+        and DATE_FORMAT(certificate_time,'%Y%m') =DATE_FORMAT(#{settleTime},'%Y%m')
+        and voucher_id = #{voucherId}
+    </select>
+</mapper>

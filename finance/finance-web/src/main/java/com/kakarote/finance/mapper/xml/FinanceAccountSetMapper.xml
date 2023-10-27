@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kakarote.finance.mapper.FinanceAccountSetMapper">
+    <select id="getUserIdList" resultType="com.kakarote.finance.entity.BO.FinanceAccountSetBO">
+        SELECT user_id,is_founder FROM wk_finance_account_user WHERE account_id = #{accountId} GROUP BY user_id
+    </select>
+
+    <select id="getAccountSetList" resultType="com.kakarote.finance.entity.VO.FinanceAccountListVO">
+        SELECT a.account_id,a.company_name,a.start_time,a.start_time as
+        enable_time,a.`status`,b.is_default,a.contacts,a.mobile
+        FROM wk_finance_account_set a
+        LEFT JOIN wk_finance_account_user b ON a.account_id = b.account_id
+        WHERE 1=1
+        and a.status = 1
+        <if test="userId != null and userId != ''">
+            and b.user_id = #{userId}
+        </if>
+        GROUP BY b.account_id
+    </select>
+
+    <select id="getSettleTime" resultType="java.lang.String">
+        select settle_time from wk_finance_statement_settle
+        WHERE account_id = #{accountId}
+        order by settle_time desc
+        limit 1
+    </select>
+
+    <select id="getRoleIdList" resultType="java.lang.Long">
+        SELECT role_id FROM wk_finance_account_user WHERE account_id = #{accountId} and user_id = #{userId}
+    </select>
+
+    <update id="removeAllData">
+        delete from ${tableName} where 1=1
+    </update>
+</mapper>

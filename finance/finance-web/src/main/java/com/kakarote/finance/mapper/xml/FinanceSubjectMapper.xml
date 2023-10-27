@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kakarote.finance.mapper.FinanceSubjectMapper">
+    <select id="queryListByType" resultType="com.kakarote.finance.entity.VO.FinanceSubjectVO">
+        select a.*,if(a.balance_direction = 1,( ifnull((select ifnull(sum(debtor_balance),0) -
+        ifnull(sum(credit_balance),0)
+        from wk_finance_certificate_detail
+        where account_id = #{accountId}
+        and subject_id = a.subject_id
+        ),0) +
+        (select ifnull(sum(initial_balance),0) from wk_finance_initial
+        where subject_id = a.subject_id
+        and account_id = #{accountId}
+        and initial_id not in (select initial_id from wk_finance_initial_assist where account_id = #{accountId})
+        )),( ifnull((select ifnull(sum(credit_balance),0) - ifnull(sum(debtor_balance),0)
+        from wk_finance_certificate_detail
+        where account_id = #{accountId}
+        and subject_id = a.subject_id
+        ),0) +
+        (select ifnull(sum(initial_balance),0) from wk_finance_initial
+        where subject_id = a.subject_id
+        and account_id = #{accountId}
+        and initial_id not in (select initial_id from wk_finance_initial_assist where account_id = #{accountId})
+        ))) as balance,if((select count(1) from wk_finance_certificate_detail
+        where account_id = #{accountId} and subject_id = a.subject_id
+        ) >0,1,0) isRelevance,
+        ( SELECT GROUP_CONCAT(label_name) FROM wk_finance_subject_adjuvant where subject_id = a.subject_id) as
+        label_name
+        from wk_finance_subject as a
+        where a.status != 3
+        and account_id = #{accountId}
+        <if test="type != null and type != ''">
+            and a.type = #{type}
+        </if>
+        <if test="status != null and status != ''">
+            and a.status = #{status}
+        </if>
+        <if test="ids.size() > 0">
+            and a.subject_id in
+            <foreach collection="ids" index="index" open="(" close=")" separator="," item="subjectId">
+                #{subjectId}
+            </foreach>
+        </if>
+        ORDER BY a.number ASC
+    </select>
+    <select id="querySubjectIds" resultType="com.alibaba.fastjson.JSONObject">
+        select subject_id,`number` as subject_number,subject_name
+        from wk_finance_subject
+        where status != 3
+        and grade >= #{data.minLevel}
+        and grade &lt;= #{data.maxLevel}
+        and account_id = #{data.accountId}
+        ORDER BY `number`
+    </select>
+    <select id="queryIds" resultType="java.lang.Long">
+        select subject_id
+        from wk_finance_subject
+        where status != 3
+        and account_id = #{accountId}
+        <if test="minLevel != null and minLevel != ''">
+            and grade >= #{minLevel}
+        </if>
+        <if test="maxLevel != null and maxLevel != ''">
+            and grade &lt;= #{maxLevel}
+        </if>
+        <if test="ids.size() > 0">
+            and subject_id in
+            <foreach collection="ids" index="index" open="(" close=")" separator="," item="subjectId">
+                #{subjectId}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="queryIdsByType" resultType="java.lang.Long">
+        select distinct a.subject_id
+        from wk_finance_certificate_detail as a
+        left join wk_finance_certificate as b on a.certificate_id = b.certificate_id
+        left join wk_finance_subject as c on c.subject_id = a.subject_id
+        where DATE_FORMAT(b.certificate_time,'%Y%m') = DATE_FORMAT(#{certificateTime},'%Y%m')
+        and c.type = 5 and number != 6000
+        and a.account_id = #{accountId}
+    </select>
+
+    <select id="queryIdsByUnit" resultType="java.lang.Long">
+        select subject_id
+        from wk_finance_subject
+        where status = 1 and amount_unit is not null and amount_unit != '' and account_id = #{accountId}
+    </select>
+    <select id="querySubjectByIds" resultType="com.alibaba.fastjson.JSONObject">
+        select *,`number` as subject_number
+        from wk_finance_subject
+        where status != 3
+        and grade >= #{data.minLevel}
+        and grade &lt;= #{data.maxLevel}
+        and account_id = #{data.accountId}
+        <if test="data.startSubjectId != null and data.startSubjectId != ''">
+            and left(`number`,length((select `number` from wk_finance_subject where subject_id =
+            #{data.startSubjectId})))
+            >= (select`number` from wk_finance_subject where subject_id = #{data.startSubjectId})
+        </if>
+        <if test="data.endSubjectId != null and data.endSubjectId != ''">
+            and left(`number`,length((select `number` from wk_finance_subject where subject_id = #{data.endSubjectId})))
+            &lt;= (select `number` from wk_finance_subject where subject_id = #{data.endSubjectId})
+        </if>
+        order by `number`
+    </select>
+    <select id="querySubjectIdsByAdjuvant" resultType="java.lang.Long">
+        SELECT distinct
+        b.subject_id
+        FROM
+        wk_finance_subject a
+        LEFT JOIN wk_finance_assist AS b ON b.subject_id = a.subject_id
+        LEFT JOIN wk_finance_certificate_detail c ON c.subject_id = a.subject_id
+        AND c.assist_id = b.assist_id
+        LEFT JOIN wk_finance_certificate AS d ON d.certificate_id = c.certificate_id
+        LEFT JOIN wk_finance_assist_adjuvant AS w ON w.assist_id = b.assist_id
+        LEFT JOIN wk_finance_adjuvant_carte AS m ON w.relation_id = m.carte_id
+        WHERE
+        a.account_id = #{accountId}
+        AND b.assist_id IS NOT NULL
+        AND m.adjuvant_id= #{adjuvantId}
+        <if test="relationId != null and relationId != ''">
+            AND m.carte_id= #{relationId}
+        </if>
+    </select>
+</mapper>

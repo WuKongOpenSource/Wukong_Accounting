@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kakarote.finance.mapper.FinanceInitialMapper">
+    <select id="queryListBySubjectType" resultType="com.alibaba.fastjson.JSONObject">
+        select lovw.* from (
+        select a.*,b.initial_balance ,b.initial_num,b.add_up_debtor_balance,
+        b.add_up_debtor_num,b.add_up_credit_balance,b.add_up_credit_num,
+        b.beginning_balance,b.beginning_num,b.profit_balance,b.initial_id,
+        if((select count(1) from wk_finance_subject_adjuvant where subject_id = a.subject_id) > 0
+        and (select count(1) from wk_finance_subject where parent_id = a.subject_id) = 0,1,0) as is_adjuvant,
+        0 as is_assist,null as assist_id
+        from wk_finance_subject as a
+        left join wk_finance_initial as b on a.subject_id = b.subject_id
+        where a.status = 1
+        and a.type = #{subjectType}
+        and a.account_id = #{accountId}
+        and ( b.initial_id not in (select initial_id from wk_finance_initial_assist where account_id = #{accountId})
+        or b.initial_id is null)
+        union all
+        select a.*,b.initial_balance ,b.initial_num,b.add_up_debtor_balance,
+        b.add_up_debtor_num,b.add_up_credit_balance,b.add_up_credit_num,
+        b.beginning_balance,b.beginning_num,b.profit_balance,b.initial_id,
+        0 as is_adjuvant,
+        1 as is_assist,c.assist_id
+        from wk_finance_initial_assist as c
+        left join wk_finance_subject as a on c.subject_id = a.subject_id
+        left join wk_finance_initial as b on b.initial_id = c.initial_id
+        where a.type = #{subjectType}
+        and c.account_id = #{accountId}
+        ) as lovw
+        ORDER BY lovw.number,lovw.is_assist
+    </select>
+
+    <select id="queryTrialBalance" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT ifnull(sum(a.add_up_debtor_balance),0) as add_up_debtor_balance,
+        ifnull(sum(a.add_up_credit_balance),0) as add_up_credit_balance,
+        (ifnull(sum(a.add_up_debtor_balance),0) - ifnull(sum(add_up_credit_balance),0)) as add_up_difference_balance,
+        ifnull(sum(IF(b.balance_direction = 1,initial_balance,0)),0) as debtor_balance,
+        ifnull( sum(IF(b.balance_direction = 2,initial_balance,0)),0) as credit_balance,
+        (ifnull(sum(IF(b.balance_direction = 1,initial_balance,0)),0)
+        - ifnull( sum(IF(b.balance_direction = 2,initial_balance,0)),0)) as balance_difference_balance,
+        IF((ifnull(sum(a.add_up_debtor_balance),0) - ifnull(sum(add_up_credit_balance),0)) = 0
+        and (ifnull(sum(IF(b.balance_direction = 1,initial_balance,0)),0) -
+        ifnull( sum(IF(b.balance_direction = 2,initial_balance,0)),0)) = 0
+        ,1,0) as trialResult
+        from wk_finance_initial as a
+        LEFT JOIN wk_finance_subject as b on b.subject_id = a.subject_id
+        where a.account_id = #{accountId}
+        and b.parent_id = 0
+        and a.initial_id not in (select initial_id from wk_finance_initial_assist where account_id = #{accountId})
+    </select>
+    <select id="queryListBysubjectId" resultType="com.alibaba.fastjson.JSONObject">
+        select a.*,b.initial_balance ,b.initial_num,b.add_up_debtor_balance,
+        b.add_up_debtor_num,b.add_up_credit_balance,b.add_up_credit_num,
+        b.beginning_balance,b.beginning_num,b.profit_balance,b.initial_id,
+        0 as is_adjuvant,
+        0 as is_assist
+        from wk_finance_initial_assist as c
+        left join wk_finance_subject as a on c.subject_id = a.subject_id
+        left join wk_finance_initial as b on b.initial_id = c.initial_id
+        where c.subject_id = #{subjectId}
+        and c.account_id = #{accountId}
+        GROUP BY c.assist_id
+    </select>
+    <select id="queryPageBySubjectType" resultType="com.alibaba.fastjson.JSONObject">
+        select lovw.* from (
+        select a.*,b.initial_balance ,b.initial_num,b.add_up_debtor_balance,
+        b.add_up_debtor_num,b.add_up_credit_balance,b.add_up_credit_num,
+        b.beginning_balance,b.beginning_num,b.profit_balance,b.initial_id,
+        if((select count(1) from wk_finance_subject_adjuvant where subject_id = a.subject_id) > 0
+        and (select count(1) from wk_finance_subject where parent_id = a.subject_id) = 0,1,0) as is_adjuvant,
+        0 as is_assist,null as assist_id
+        from wk_finance_subject as a
+        left join wk_finance_initial as b on a.subject_id = b.subject_id
+        where a.status = 1
+        and a.type = #{data.subjectType}
+        and a.account_id = #{data.accountId}
+        and ( b.initial_id not in (select initial_id from wk_finance_initial_assist where account_id =
+        #{data.accountId})
+        or b.initial_id is null)
+        union all
+        select a.*,b.initial_balance ,b.initial_num,b.add_up_debtor_balance,
+        b.add_up_debtor_num,b.add_up_credit_balance,b.add_up_credit_num,
+        b.beginning_balance,b.beginning_num,b.profit_balance,b.initial_id,
+        0 as is_adjuvant,
+        1 as is_assist,c.assist_id
+        from wk_finance_initial_assist as c
+        left join wk_finance_subject as a on c.subject_id = a.subject_id
+        left join wk_finance_initial as b on b.initial_id = c.initial_id
+        where a.type = #{data.subjectType}
+        and c.account_id = #{data.accountId}
+        ) as lovw
+        ORDER BY lovw.number,lovw.assist_id
+    </select>
+    <select id="queryAssistAdjuvant" resultType="com.kakarote.finance.entity.PO.FinanceInitialAssistAdjuvant">
+        SELECT
+        a.assist_adjuvant_id,
+        a.assist_id,
+        a.label,
+        a.account_id,
+        a.relation_id,
+        a.label_name,
+        a.adjuvant_id,
+        b.carte_name AS relation_name,
+        b.carte_number
+        FROM
+        wk_finance_initial_assist_adjuvant AS a
+        LEFT JOIN wk_finance_adjuvant_carte AS b ON a.relation_id = b.carte_id
+        WHERE
+        a.assist_id = #{assistId}
+        AND a.account_id= #{accountId}
+    </select>
+
+    <select id="queryAdjuvantInitial" resultType="com.alibaba.fastjson.JSONObject">
+        select lovw.relation_id,name,carte_number, true as is_assist,
+        if(sum(debtor_balance) - sum(credit_balance) >= 0,1,2) as balance_direction,sum(add_up_debtor_balance) as
+        debtor_year_balance,
+        sum(add_up_credit_balance) as credit_year_balance,
+        if(sum(debtor_balance) - sum(credit_balance) >= 0,sum(debtor_balance) - sum(credit_balance),sum(credit_balance)
+        - sum(debtor_balance)) as initial_balance
+        from ( select d.carte_id as relation_id,
+        ifnull(sum(if(e.balance_direction = 1,a.initial_balance,0)),0) as debtor_balance,
+        ifnull(sum(if(e.balance_direction = 2,a.initial_balance,0)),0) as credit_balance,
+        ifnull(sum(a.add_up_debtor_balance),0) as add_up_debtor_balance,
+        ifnull(sum(a.add_up_credit_balance),0) as add_up_credit_balance,
+        carte_name AS name,carte_number
+        from wk_finance_initial as a
+        left join wk_finance_initial_assist as b on b.initial_id = a.initial_id
+        left join wk_finance_assist_adjuvant as c on c.assist_id = b.finance_assist_id
+        left join wk_finance_adjuvant_carte as d on d.carte_id = c.relation_id
+        left join wk_finance_subject as e on e.subject_id = a.subject_id
+        where a.account_id = #{data.accountId}
+        and d.carte_id is not null
+        <if test="data.subjectIds != null and data.subjectIds.size > 0">
+            and e.subject_id in
+            <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="subjectId">
+                #{subjectId}
+            </foreach>
+        </if>
+        <if test="data.relationId != null and data.relationId != ''">
+            AND c.relation_id = #{data.relationId}
+        </if>
+        GROUP BY d.carte_id,e.balance_direction) as lovw
+        <if test="data.degree != null and data.degree != ''">
+            GROUP BY relation_id
+        </if>
+    </select>
+</mapper>

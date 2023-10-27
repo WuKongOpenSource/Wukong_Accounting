@@ -1,0 +1,88 @@
+[
+  {
+    "statementName": "转出未交增值税",
+    "statementType": 3,
+    "subjectList": [
+      {
+        "number": "22210104",
+        "isLend": 1,
+        "moneyRatio": 100,
+        "digestContent": "转出未交增值税"
+      },
+      {
+        "number": "222102",
+        "isLend": 2,
+        "moneyRatio": 100,
+        "digestContent": "转出未交增值税"
+      }
+    ]
+  },
+  {
+    "statementName": "计提地税",
+    "statementType": 4,
+    "subjectList": [
+      {
+        "number": "540310",
+        "isLend": 1,
+        "moneyRatio": 3,
+        "digestContent": "计提教育费附加"
+      },
+      {
+        "number": "222113",
+        "isLend": 2,
+        "moneyRatio": 3,
+        "digestContent": "计提教育费附加"
+      },
+      {
+        "number": "540303",
+        "isLend": 1,
+        "moneyRatio": 7,
+        "digestContent": "计提城建费"
+      },
+      {
+        "number": "222117",
+        "isLend": 2,
+        "moneyRatio": 7,
+        "digestContent": "计提城建费"
+      },
+      {
+        "number": "540313",
+        "isLend": 1,
+        "moneyRatio": 2,
+        "digestContent": "计提地方教育费附加"
+      },
+      {
+        "number": "222114",
+        "isLend": 2,
+        "moneyRatio": 2,
+        "digestContent": "计提地方教育费附加"
+      }
+    ]
+  },
+  {
+    "statementName": "计提所得税",
+    "statementType": 5,
+    "subjectList": [
+      {
+        "number": "5801",
+        "isLend": 1,
+        "moneyRatio": 25,
+        "digestContent": "计提所得税"
+      },
+      {
+        "number": "222111",
+        "isLend": 2,
+        "moneyRatio": 25,
+        "digestContent": "计提所得税"
+      }
+    ]
+  },
+  {
+    "statementName": "结转损益",
+    "statementType": 2,
+    "voucherType": 2,
+    "adjustNumber": "6000",
+    "endNumber": "310415",
+    "restNumber": "3103"
+  }
+]

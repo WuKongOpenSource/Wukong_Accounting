@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kakarote.finance.mapper.FinanceParameterMapper">
+    <select id="queryParameter" resultType="com.alibaba.fastjson.JSONObject">
+        select a.*,ifnull(b.currency_coding,(select currency_coding from wk_finance_currency where home_currency = 1
+        and account_id = #{accountId} LIMIT 0 , 1)) as currency_name
+        from wk_finance_parameter as a
+        left join wk_finance_currency as b on a.currency_id = b.currency_id
+        where a.account_id = #{accountId}
+        LIMIT 0,1
+    </select>
+</mapper>

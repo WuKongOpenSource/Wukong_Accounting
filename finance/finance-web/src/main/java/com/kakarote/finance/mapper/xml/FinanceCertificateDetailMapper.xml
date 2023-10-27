@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kakarote.finance.mapper.FinanceCertificateDetailMapper">
+    <select id="queryIdsByCondition" resultType="java.lang.Long">
+        select certificate_id
+        from wk_finance_certificate_detail
+        where account_id = #{data.accountId}
+        <if test="data.digestContent != null and data.digestContent != ''">
+            and digest_content like CONCAT('%',#{data.digestContent},'%')
+        </if>
+        <if test="data.minAmount != null and data.minAmount != ''">
+            and (ifnull(debtor_balance,0) + ifnull(credit_balance,0) >= #{data.minAmount})
+        </if>
+        <if test="data.maxAmount != null and data.maxAmount != ''">
+            and (ifnull(debtor_balance,0) + ifnull(credit_balance,0) &lt;= #{data.maxAmount})
+        </if>
+        <if test="data.subjectNumber != null and data.subjectNumber != ''">
+            and subject_number like CONCAT('',#{data.subjectNumber},'%')
+        </if>
+        <if test="data.subjectIds != null and data.subjectId != ''">
+            and subject_id in
+            <foreach collection="data.subjectIds" index="index" open="(" close=")" separator="," item="id">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+</mapper>
