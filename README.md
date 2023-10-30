@@ -1,5 +1,7 @@
 # Wukong_Accounting
 
+### 🌐Read This in [English](README_EN.md)
+
 体验地址：[https://www.72crm.com](http://www.72crm.com)
 
 ## 悟空财务系统介绍
